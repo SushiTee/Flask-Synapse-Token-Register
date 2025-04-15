@@ -1,0 +1,19 @@
+# Top-level files
+include LICENSE
+include README.md
+include config.json.example
+
+# Explicitly exclude non-package directories
+exclude docs/*
+exclude tests/*
+exclude .github/*
+
+# Global excludes for development/runtime files
+global-exclude *.py[cod]
+global-exclude __pycache__/*
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude *.db
+global-exclude *.sqlite
+global-exclude .env
+global-exclude config.json

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container token-management">
+    <h2>Matrix Invitation Management</h2>
+
+    {% if message %}
+    <div class="message {{ message_type }}">{{ message }}</div>
+    {% endif %}
+
+    <!-- Token Generation Section -->
+    <section class="token-section">
+        <h3>Generate New Token</h3>
+
+        {% if token %}
+        <div class="token-result">
+            <h4>Registration Token</h4>
+            <div class="token-box" id="token">{{ token }}</div>
+            <div class="link">
+                <span>Registration Link:</span><br>
+                <span id="full-link">{{ full_link }}</span>
+            </div>
+            <button class="copy-btn" id="copyBtn">Copy Registration Link to Clipboard</button>
+        </div>
+        {% else %}
+        <div class="token-actions">
+            <p>Generate a new invitation token or use one from the table below.</p>
+        </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            <form method="post" action="{{ url_for('admin.manage_tokens') }}">
+                <input type="hidden" name="action" value="generate">
+                <button type="submit" class="action-btn generate-btn">Generate New Token</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Token Management Section -->
+    <section class="token-list-section">
+        <h3>Manage Existing Tokens</h3>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <div class="filter-label">Filter tokens:</div>
+            <div class="filter-buttons">
+                <a href="{{ url_for('admin.manage_tokens') }}" class="filter-btn {% if filter_status == 'all' %}active{% endif %}">All ({{ total_count }})</a>
+                <a href="{{ url_for('admin.manage_tokens', filter='unused') }}" class="filter-btn {% if filter_status == 'unused' %}active{% endif %}">Unused ({{ unused_count }})</a>
+                <a href="{{ url_for('admin.manage_tokens', filter='used') }}" class="filter-btn {% if filter_status == 'used' %}active{% endif %}">Used ({{ used_count }})</a>
+            </div>
+        </div>
+
+        {% if all_tokens %}
+        <table class="tokens-table">
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Used At/By</th>
+                    <th class="actions-col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for token in all_tokens %}
+                <tr class="{% if token.used %}used{% else %}unused{% endif %}">
+                    <td class="token-cell" title="{{ token.token }}">{{ token.token_short }}</td>
+                    <td class="status-cell">
+                        <span class="status-badge {% if token.used %}used{% else %}unused{% endif %}">
+                            {% if token.used %}Used{% else %}Available{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ token.created_at_formatted }}</td>
+                    <td>
+                        {% if token.used %}
+                            {{ token.used_at_formatted }}<br>
+                            <span class="used-by">by {{ token.used_by or "Unknown" }}</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="actions-cell">
+                        <div class="action-icons">
+                            {% if not token.used %}
+                            <!-- Copy button (only for unused tokens) -->
+                            <button type="button" class="icon-btn copy-icon"
+                                title="Copy Registration Link"
+                                data-token="{{ token.token }}"
+                                onclick="copyTokenLink(this)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            {% endif %}
+
+                            <!-- Delete button -->
+                            <form method="post" action="{{ url_for('admin.manage_tokens', filter=filter_status) }}" class="delete-form">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="token_id" value="{{ token.id }}">
+                                <button type="submit" class="icon-btn delete-icon"
+                                    title="Delete Token"
+                                    onclick="return confirm('Are you sure you want to delete this token?')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-tokens">No tokens found with the current filter.</div>
+        {% endif %}
+    </section>
+</div>
+
+<script>
+    // Copy button functionality for the main token box
+    var copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            // Get the full registration link and copy it to clipboard
+            var fullLinkText = document.getElementById('full-link').textContent;
+            copyToClipboard(fullLinkText);
+
+            // Change button text to indicate success
+            this.textContent = "Link Copied!";
+            setTimeout(() => {
+                this.textContent = "Copy Registration Link to Clipboard";
+            }, 2000);
+        });
+    }
+
+    // Function to copy registration link for a specific token
+    function copyTokenLink(button) {
+        var token = button.getAttribute('data-token');
+        var baseUrl = window.location.origin;
+        var registerUrl = baseUrl + "{{ url_for('public.register', token='TOKEN_PLACEHOLDER') }}".replace('TOKEN_PLACEHOLDER', token);
+
+        copyToClipboard(registerUrl);
+
+        // Show visual feedback
+        var icon = button.querySelector('i');
+        icon.className = 'fas fa-check';
+        button.classList.add('copied');
+
+        setTimeout(() => {
+            icon.className = 'fas fa-copy';
+            button.classList.remove('copied');
+        }, 2000);
+    }
+
+    // Helper function to copy text to clipboard
+    function copyToClipboard(text) {
+        var tempTextArea = document.createElement('textarea');
+        tempTextArea.value = text;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+    }
+</script>
+{% endblock %}

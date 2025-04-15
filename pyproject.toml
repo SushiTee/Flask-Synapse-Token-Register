@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flask-synapse-token-register"
+version = "0.1.0"
+description = "Matrix registration page for Synapse with token-based authentication"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{ name = "Sushi Fish" }]
+
+dependencies = ["Flask>=3.0.0", "bcrypt>=4.0.0", "uwsgi>=2.0.0", "click>=8.0.0", "pytz>=2022.1"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-flask>=1.2.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/SushiTee/flask-synapse-token-register"
+"Bug Tracker" = "https://github.com/SushiTee/flask-synapse-token-register/issues"
+
+[project.scripts]
+flask-synapse-register = "flask_synapse_token_register.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src/"]
+include = ["flask_synapse_token_register*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+flask_synapse_token_register = [
+    "templates/*.html",
+    "static/css/*.css",
+    "static/img/*.png",
+    "static/img/*.svg",
+    "static/img/*.jpg",
+    "static/img/*.ico"
+]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.py[cod]", "*.so", "*.db", "*.sqlite"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"

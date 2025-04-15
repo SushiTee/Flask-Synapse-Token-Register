@@ -1,0 +1,745 @@
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+   :root {
+    /* Colors */
+    --color-primary: #4CAF50;
+    --color-primary-hover: #45a049;
+    --color-secondary: #2196F3;
+    --color-secondary-hover: #0b7dda;
+    --color-info: #5bc0de;
+    --color-success-bg: #dfd;
+    --color-success-border: #4F8A10;
+    --color-success-text: #4F8A10;
+    --color-error-bg: #fdd;
+    --color-error-border: #d8000c;
+    --color-error-text: #d8000c;
+    --color-accent: #337677;
+    --color-link: #1a73e8;
+    --color-link-hover: #0d47a1;
+    --color-text-dark: #333;
+    --color-text-medium: #444;
+    --color-text-light: #555;
+    --color-text-muted: #777;
+    --color-bg-main: #f2f2f2;
+    --color-bg-card: white;
+    --color-bg-token: #f9f9f9;
+    --color-border: #ddd;
+    --color-input-border: #ccc;
+
+    /* Spacing */
+    --space-xs: 0.3rem;
+    --space-sm: 0.5rem;
+    --space-md: 0.8rem;
+    --space-lg: 1rem;
+    --space-xl: 1.5rem;
+    --space-xxl: 2rem;
+
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 5px;
+    --radius-lg: 8px;
+    --radius-xl: 10px;
+
+    /* Shadows */
+    --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-focus: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: var(--color-bg-main);
+    min-height: 100vh;
+    margin: 0;
+    padding: var(--space-xxl) var(--space-lg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body.has-admin-nav {
+    padding-top: 50px;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+h2 {
+    margin-bottom: var(--space-xl);
+    color: var(--color-text-dark);
+    font-weight: 600;
+}
+
+h3 {
+    margin-top: 0;
+    margin-bottom: var(--space-lg);
+    color: var(--color-text-dark);
+}
+
+.success-page h2 {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.error-page h2 {
+    color: var(--color-error-text);
+    margin-bottom: var(--space-lg);
+}
+
+/* ==========================================================================
+   Layout Components
+   ========================================================================== */
+.container {
+    background: var(--color-bg-card);
+    padding: var(--space-xxl);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    margin: var(--space-xxl) auto;
+}
+
+.token-management {
+    max-width: 800px;
+}
+
+/* ==========================================================================
+   Admin Navigation
+   ========================================================================== */
+.admin-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-accent);
+    color: white;
+    padding: var(--space-md);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+    z-index: 100;
+}
+
+.admin-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.admin-nav a:hover {
+    opacity: 0.8;
+}
+
+.admin-nav .logout-link {
+    color: #ffcccc;
+}
+
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
+form {
+    text-align: left;
+}
+
+form label {
+    display: block;
+    margin-top: var(--space-lg);
+    font-weight: 600;
+    color: var(--color-text-medium);
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.7rem;
+    margin-top: var(--space-xs);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+input[type="submit"] {
+    margin-top: var(--space-xl);
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--color-primary);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+input[type="submit"]:hover {
+    background: var(--color-primary-hover);
+}
+
+.password-requirements {
+    margin: var(--space-md) 0;
+    padding: var(--space-md);
+    background-color: #f8f9fa;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+}
+
+.password-requirements p {
+    margin-bottom: var(--space-xs);
+    font-weight: 500;
+    color: var(--color-text-medium);
+}
+
+.password-requirements ul {
+    padding-left: var(--space-lg);
+    color: var(--color-text-light);
+}
+
+.password-requirements li {
+    margin: var(--space-xs) 0;
+}
+
+.form-actions {
+    margin-top: var(--space-lg);
+    text-align: center;
+}
+
+.cancel-link {
+    display: inline-block;
+    margin-top: var(--space-md);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.cancel-link:hover {
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Message Boxes
+   ========================================================================== */
+.message {
+    margin: var(--space-lg) 0;
+    text-align: center;
+    font-weight: 500;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+}
+
+.error {
+    background-color: var(--color-error-bg);
+    border: 1px solid var(--color-error-border);
+    color: var(--color-error-text);
+}
+
+.success {
+    background-color: var(--color-success-bg);
+    border: 1px solid var(--color-success-border);
+    color: var(--color-success-text);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.action-buttons {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-xxl);
+    justify-content: center;
+}
+
+/* Button base styles */
+.action-btn,
+.copy-btn {
+    padding: var(--space-md) var(--space-xl);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Generate button */
+.generate-btn {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.generate-btn:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Copy button */
+.copy-btn {
+    margin: var(--space-lg) 0;
+    background: var(--color-primary);
+    color: white;
+}
+
+.copy-btn:hover {
+    background: var(--color-primary-hover);
+}
+
+/* Icon button styling */
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: var(--color-text-medium);
+}
+
+.icon-btn i {
+    font-size: 0.9rem;
+}
+
+/* Copy icon styles */
+.copy-icon:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #2196f3;
+}
+
+.copy-icon.copied {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+
+/* Delete icon styles */
+.delete-icon:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+/* ==========================================================================
+   Token Management Components
+   ========================================================================== */
+/* Section styling */
+.token-section,
+.token-list-section {
+    margin-bottom: var(--space-xxl);
+    padding: var(--space-lg);
+    background-color: var(--color-bg-token);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.token-section h3,
+.token-list-section h3 {
+    margin-top: 0;
+    margin-bottom: var(--space-lg);
+    color: var(--color-accent);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-sm);
+}
+
+/* Token action elements */
+.token-result {
+    margin-top: var(--space-lg);
+}
+
+.token-result h4 {
+    color: var(--color-text-medium);
+    margin-bottom: var(--space-md);
+}
+
+.token-box {
+    background: #f8f8f8;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    word-break: break-all;
+    font-family: monospace;
+    margin: var(--space-lg) 0;
+}
+
+.link {
+    display: none;
+}
+
+.token-actions {
+    margin-bottom: var(--space-xl);
+    color: var(--color-text-light);
+}
+
+/* Token Table */
+.tokens-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-lg) 0;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.tokens-table th,
+.tokens-table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+}
+
+.tokens-table th {
+    background-color: var(--color-accent);
+    color: white;
+    font-weight: 500;
+}
+
+.tokens-table tr:last-child td {
+    border-bottom: none;
+}
+
+.tokens-table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tokens-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.actions-col {
+    width: 85px;
+}
+
+.actions-cell {
+    text-align: center;
+    min-width: 80px;
+}
+
+.action-icons {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xs);
+}
+
+.no-tokens {
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin: var(--space-lg) 0;
+}
+
+/* Token status indicators */
+.status-badge {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.used {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.unused {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.used-by {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* Filter controls */
+.filter-controls {
+    margin-bottom: var(--space-lg);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.filter-label {
+    font-weight: 500;
+    color: var(--color-text-medium);
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.filter-btn {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: 0.9rem;
+    background-color: #f5f5f5;
+    color: var(--color-text-medium);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background-color: #e9e9e9;
+}
+
+.filter-btn.active {
+    background-color: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   Error Page Components
+   ========================================================================== */
+.error-message {
+    margin: var(--space-xl) 0;
+}
+
+.error-description {
+    margin-top: var(--space-lg);
+    color: var(--color-text-medium);
+    line-height: 1.5;
+}
+
+.error-page .action-buttons {
+    margin-top: var(--space-xxl);
+}
+
+.error-page .action-buttons a {
+    display: inline-block;
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Success Page Components
+   ========================================================================== */
+.success-message {
+    margin-bottom: var(--space-xl);
+}
+
+.success-message p {
+    margin-bottom: var(--space-sm);
+    line-height: 1.5;
+}
+
+.success-message p strong {
+    font-weight: bold;
+    color: var(--color-accent);
+}
+
+.server-info {
+    margin: var(--space-xl) 0;
+    color: white;
+    background-color: var(--color-info);
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.server-info p {
+    margin-bottom: var(--space-md);
+    line-height: 1.4;
+}
+
+.server-info .url {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--color-accent);
+    word-wrap: break-word;
+    padding: var(--space-sm);
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-sm);
+    margin: var(--space-sm) 0;
+}
+
+.recommendation,
+.clients-info {
+    margin: var(--space-xl) 0;
+    color: var(--color-text-light);
+}
+
+.recommendation strong {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.recommendation a,
+.clients-info a {
+    text-decoration: none;
+    color: var(--color-link);
+    transition: color 0.2s ease;
+}
+
+.clients-info a {
+    font-weight: 600;
+}
+
+.recommendation a:hover,
+.clients-info a:hover {
+    color: var(--color-link-hover);
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+/* Height adjustments */
+@media (max-height: 700px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .tokens-table {
+        font-size: 0.8rem;
+    }
+
+    .tokens-table th,
+    .tokens-table td {
+        padding: var(--space-sm);
+    }
+
+    .token-cell {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .delete-form {
+        text-align: center;
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 680px) {
+    /* Make table container scrollable */
+    .token-list-section {
+        overflow-x: auto;
+        padding-bottom: var(--space-md);
+    }
+
+    .tokens-table {
+        min-width: 650px;
+        font-size: 0.85rem;
+    }
+
+    .token-management {
+        max-width: 100%;
+        padding: var(--space-md);
+    }
+
+    .tokens-table th,
+    .tokens-table td {
+        padding: var(--space-sm);
+    }
+
+    .actions-col {
+        width: 75px;
+    }
+
+    .filter-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-buttons {
+        width: 100%;
+    }
+
+    .filter-btn {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 0;
+    }
+
+    .container {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        padding: var(--space-xl);
+        box-shadow: none;
+    }
+
+    .server-info {
+        padding: var(--space-lg);
+        border-radius: var(--radius-sm);
+    }
+
+    .server-info .url {
+        font-size: 1.4rem;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"] {
+        padding: var(--space-md);
+        font-size: 16px;
+    }
+
+    .copy-btn {
+        padding: var(--space-md) var(--space-lg);
+        width: 100%;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+
+    .action-btn {
+        width: 100%;
+    }
+
+    .tokens-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .container {
+        padding: var(--space-lg);
+    }
+
+    .server-info .url {
+        font-size: 1.2rem;
+    }
+}

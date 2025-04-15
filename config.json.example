@@ -1,0 +1,16 @@
+{
+    "register_url_prefix": "/register",
+    "url_scheme": "https",
+    "timezone": "Europe/Berlin",
+    "og": {
+        "title": "Matrix Registration",
+        "description": "Register to the example.org Matrix server.",
+        "image_name": "logo.png",
+        "image_width": "1080",
+        "image_height": "1080",
+        "url": "https://matrix.example.org/register"
+    },
+    "og_static_dir": "/opt/synapse/register_page/og_static",
+    "site_name": "Matrix Registration",
+    "matrix_url": "matrix.example.org"
+}

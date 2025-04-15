@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Register for {{ matrix_url }} Matrix</h2>
+    {% if error %}
+        <div class="message error">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+        <div class="message success">{{ success }}</div>
+    {% endif %}
+    <form method="post">
+        <input type="hidden" name="token" value="{{ token }}">
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password" required>
+
+        <div class="password-requirements">
+            <p>Username must:</p>
+            <ul>
+                <li>Be lowercase</li>
+                <li>Be between 1 and 255 characters</li>
+                <li>Contain only a-z, 0-9, -, _, =, ., /</li>
+            </ul>
+            <p>Password must:</p>
+            <ul>
+                <li>Be at least 8 characters long</li>
+                <li>Include at least one number</li>
+                <li>Include at least one special character</li>
+            </ul>
+        </div>
+
+        <input type="submit" value="Register">
+    </form>
+</div>
+{% endblock %}

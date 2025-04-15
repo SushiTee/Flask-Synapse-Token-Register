@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container success-page">
+    <h2>Account Successfully Created</h2>
+    <div class="success-message">
+        <p>Your account has been successfully created! You can now log in with the credentials you provided.</p>
+        <p>Username: <strong>{{ username }}</strong></p>
+    </div>
+
+    <!-- Important server info section -->
+    <div class="server-info">
+        <p><strong>Important:</strong> To use your new account, please note that the server address is:</p>
+        <p class="url">{{ matrix_url }}</p>
+        <p>You must enter this as the "homeserver" in your Matrix client instead of the default server address.</p>
+    </div>
+
+    <div class="clients-info">
+        <p>There are many Matrix clients to choose from to start using the platform. You can explore them at the following link:</p>
+        <p><a href="https://matrix.org/ecosystem/clients/" target="_blank">Matrix Clients List</a></p>
+    </div>
+    <div class="recommendation">
+        <p><strong>Recommended:</strong> I personally use <a href="https://element.io/download" target="_blank">Element</a> but feel free to choose whatever you like.</p>
+        <p>For immediate access without installation, you can use the <a href="https://app.element.io" target="_blank">Element Web App</a> directly in your browser. This is convenient for quick access from any device.</p>
+    </div>
+</div>
+{% endblock %}

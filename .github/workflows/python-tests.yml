@@ -1,0 +1,40 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.11', '3.13']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip wheel
+        pip install .[dev]
+
+    - name: Run tests with pytest and coverage
+      run: |
+        pytest --cov=flask_synapse_token_register --cov-report=xml --cov-report=term
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4  # Updated from v3 to v4
+      with:
+        name: coverage-report-${{ matrix.python-version }}
+        path: |
+          coverage.xml
+          .coverage

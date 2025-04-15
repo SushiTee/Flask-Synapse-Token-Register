@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if og_meta.title %}<meta property="og:title" content="{{ og_meta.title }}">{% endif %}
+    {% if og_meta.description %}<meta property="og:description" content="{{ og_meta.description }}">{% endif %}
+    {% if og_meta.image_name %}
+        {% if has_og_static_dir %}
+            <meta property="og:image" content="{{ url_for('og_static.serve_og_static', filename=og_meta.image_name) }}">
+        {% else %}
+            <meta property="og:image" content="{{ url_for('static', filename='img/' + og_meta.image_name) }}">
+        {% endif %}
+    {% endif %}
+    {% if og_meta.image_width %}<meta property="og:image:width" content="{{ og_meta.image_width }}">{% endif %}
+    {% if og_meta.image_height %}<meta property="og:image:height" content="{{ og_meta.image_height }}">{% endif %}
+    {% if og_meta.url %}<meta property="og:url" content="{{ og_meta.url }}">{% endif %}
+    <title>{{ og_meta.title|default(site_name) }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{{ body_classes }}">
+    {% if admin_logged_in %}
+    <div class="admin-nav">
+        <a href="{{ url_for('admin.manage_tokens') }}" class="admin-link">Manage Tokens</a>
+        <a href="{{ url_for('admin.change_password') }}" class="admin-link">Change Password</a>
+        <a href="{{ url_for('admin.logout') }}" class="logout-link">Logout</a>
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>

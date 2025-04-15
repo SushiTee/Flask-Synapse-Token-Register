@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container error-page">
+    <h2>Error Occurred</h2>
+    <div class="error-message">
+        <div class="message error">
+            {{ error }}
+        </div>
+        <p class="error-description">
+            Something went wrong while processing your request. Please try again or contact the administrator if the problem persists.
+        </p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="/" class="action-btn generate-btn">Return to Homepage</a>
+    </div>
+</div>
+{% endblock %}
