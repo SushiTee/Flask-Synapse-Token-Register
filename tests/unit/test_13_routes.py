@@ -129,7 +129,16 @@ class TestPublicRoutes:
         ), patch(
             "flask_synapse_token_register.routes.public.validate_username",
             return_value=True,
-        ), patch("flask_synapse_token_register.routes.public.subprocess.run"), patch(
+        ), patch(
+            "flask_synapse_token_register.routes.public.current_app.config.get",
+            # Mock the config.get method to return our test values
+            side_effect=lambda key, default=None: {
+                "TESTING": False,
+                "register_cmd": "register_cmd {username} {password}",
+            }.get(key, default),
+        ), patch(
+            "flask_synapse_token_register.routes.public.subprocess.run"
+        ) as mock_subprocess, patch(
             "flask_synapse_token_register.routes.public.mark_token_used"
         ) as mock_mark_used, patch(
             "flask_synapse_token_register.routes.public.generate_success_token",
@@ -146,6 +155,11 @@ class TestPublicRoutes:
                 follow_redirects=False,
             )
 
+            # Verify the subprocess was called with properly formatted command
+            mock_subprocess.assert_called_once()
+            cmd_args = mock_subprocess.call_args[0][0]  # Get the first positional arg
+            assert "newuser" in str(cmd_args)  # Username should be in the command
+
             # Should redirect to success page
             assert response.status_code == 302
             assert "/success" in response.headers["Location"]
@@ -154,6 +168,105 @@ class TestPublicRoutes:
 
             # Should mark token as used
             mock_mark_used.assert_called_once_with("valid_token", username="newuser")
+
+    def test_register_with_custom_command(self, client):
+        """Test registration with a custom command template."""
+        custom_cmd = "docker exec synapse register_user -u {username} -p {password}"
+
+        with patch(
+            "flask_synapse_token_register.routes.public.token_exists", return_value=True
+        ), patch(
+            "flask_synapse_token_register.routes.public.is_token_used",
+            return_value=False,
+        ), patch(
+            "flask_synapse_token_register.routes.public.is_strong_password",
+            return_value=True,
+        ), patch(
+            "flask_synapse_token_register.routes.public.validate_username",
+            return_value=True,
+        ), patch(
+            "flask_synapse_token_register.routes.public.current_app.config.get",
+            side_effect=lambda key, default=None: {
+                "TESTING": False,
+                "register_cmd": custom_cmd,
+            }.get(key, default),
+        ), patch(
+            "flask_synapse_token_register.routes.public.subprocess.run"
+        ) as mock_subprocess, patch(
+            "flask_synapse_token_register.routes.public.mark_token_used"
+        ), patch(
+            "flask_synapse_token_register.routes.public.generate_success_token",
+            return_value="success123",
+        ):
+            client.post(
+                "/?token=valid_token",
+                data={
+                    "token": "valid_token",
+                    "username": "testuser",
+                    "password": "StrongPass123!",
+                    "confirm_password": "StrongPass123!",
+                },
+            )
+
+            # Verify that the custom command was used
+            mock_subprocess.assert_called_once()
+            cmd_args = mock_subprocess.call_args[0][0]
+            assert "docker" in str(cmd_args)  # Should use our custom docker command
+            assert "exec" in str(cmd_args)
+            assert "synapse" in str(cmd_args)
+            assert "testuser" in str(cmd_args)
+
+    def test_register_command_with_special_characters(self, client):
+        """Test that special characters in passwords are handled properly."""
+        password_with_spaces = "Password With Spaces 123!"
+
+        with patch(
+            "flask_synapse_token_register.routes.public.token_exists", return_value=True
+        ), patch(
+            "flask_synapse_token_register.routes.public.is_token_used",
+            return_value=False,
+        ), patch(
+            "flask_synapse_token_register.routes.public.is_strong_password",
+            return_value=True,
+        ), patch(
+            "flask_synapse_token_register.routes.public.validate_username",
+            return_value=True,
+        ), patch(
+            "flask_synapse_token_register.routes.public.current_app.config.get",
+            side_effect=lambda key, default=None: {
+                "TESTING": False,
+                "register_cmd": "register_new_matrix_user -u {username} -p {password}",
+            }.get(key, default),
+        ), patch(
+            "flask_synapse_token_register.routes.public.subprocess.run",
+            return_value=None,
+        ) as mock_subprocess, patch(
+            "flask_synapse_token_register.routes.public.mark_token_used"
+        ), patch(
+            "flask_synapse_token_register.routes.public.generate_success_token",
+            return_value="success_token",
+        ), patch(
+            "flask_synapse_token_register.routes.public.shlex.quote",
+            side_effect=lambda s: f"'{s}'",  # Simple mock of shlex.quote
+        ):
+            client.post(
+                "/?token=valid_token",
+                data={
+                    "token": "valid_token",
+                    "username": "user123",
+                    "password": password_with_spaces,
+                    "confirm_password": password_with_spaces,
+                },
+            )
+
+            # Check that shlex.split was used to properly handle the command
+            mock_subprocess.assert_called_once()
+            # The password should be properly quoted
+            cmd_args = mock_subprocess.call_args[0][0]
+            assert "user123" in str(cmd_args)
+            # Make sure the spaces in password are preserved (would be in a quoted string)
+            command_str = " ".join(str(arg) for arg in cmd_args)
+            assert "Password With Spaces 123!" in command_str
 
     def test_register_submission_missing_fields(self, client):
         """Test registration with missing form fields."""
@@ -201,10 +314,10 @@ class TestPublicRoutes:
             return_value=True,
         ), patch(
             "flask_synapse_token_register.routes.public.current_app.config.get",
-            # Override the TESTING flag only for this specific call
-            side_effect=lambda key, default=None: False
-            if key == "TESTING"
-            else default,
+            side_effect=lambda key, default=None: {
+                "TESTING": False,
+                "register_cmd": "register_cmd {username} {password}",
+            }.get(key, default),
         ), patch(
             "flask_synapse_token_register.routes.public.subprocess.run",
             side_effect=subprocess.CalledProcessError(1, "cmd"),
@@ -220,10 +333,7 @@ class TestPublicRoutes:
             )
 
             assert response.status_code == 200
-            assert (
-                b"Failed to register: The user existinguser already exists"
-                in response.data
-            )
+            assert b"Failed to register: The user existinguser" in response.data
 
 
 class TestAdminRoutes:

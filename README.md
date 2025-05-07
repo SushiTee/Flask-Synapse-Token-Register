@@ -207,6 +207,7 @@ In the config.json file:
     - `image_width`: Width of the image for Open Graph
     - `image_height`: Height of the image for Open Graph
     - `url`: URL for Open Graph
+- `register_cmd`: Command to register new users. The default is `register_new_matrix_user --no-admin -c /etc/synapse/homeserver.yaml -u {username} -p {password} http://127.0.0.1:8008`. The `{username}` and `{password}` placeholders will be replaced with the actual username and password. If your synapse server is running the _Matrix Authentication Service_ (MAS), you can use the command may look like this: `mas-cli manage register-user --config <path to MAS config.yaml> --ignore-password-complexity --username {username} --password {password} --no-admin --yes`
 - `TESTING`: Set to `true` to enable testing mode. This will disable running the actual register command. This means the register form will redirect to the success page without actually creating a user on the Matrix server.
 
 ## Testing

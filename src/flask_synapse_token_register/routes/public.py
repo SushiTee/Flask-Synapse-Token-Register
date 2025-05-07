@@ -1,5 +1,6 @@
 """Public routes for registration."""
 
+import shlex
 import subprocess
 
 from flask import (
@@ -32,104 +33,103 @@ bp = Blueprint("public", __name__)
 @bp.route("/", methods=["GET", "POST"])
 def register():
     """Main route - either shows admin login or registration form."""
-    # Check if there's an admin token
-    admin_user = get_admin_user()
-    if admin_user:
-        # If admin is logged in, redirect to token management
+    # Check if admin is logged in
+    if get_admin_user():
         return redirect(url_for("admin.manage_tokens"))
 
     # Check if a registration token is provided
     token = request.args.get("token") or request.form.get("token")
     if not token:
-        # No token, show admin login
         return redirect(url_for("admin.login"))
 
     # Validate token
     if not token_exists(token):
         abort(403, description="Invalid registration token")
-
     if is_token_used(token):
         abort(403, description="This registration token has already been used")
 
-    # Token is valid, handle registration
-    error = None
-    success_message = None
+    # Handle GET request - show registration form
+    if request.method == "GET":
+        return render_template("register.html", token=token)
 
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
+    # Handle POST request - process registration
+    username = request.form.get("username")
+    password = request.form.get("password")
+    confirm_password = request.form.get("confirm_password")
 
-        if not username or not password or not confirm_password:
-            error = "Username and both password fields are required."
-            return render_template(
-                "register.html", error=error, success=success_message, token=token
+    # Validate form inputs
+    if not username or not password or not confirm_password:
+        error = "Username and both password fields are required."
+        return render_template("register.html", error=error, token=token)
+
+    if not validate_username(username):
+        error = (
+            "Invalid username. Usernames can only contain lowercase letters, "
+            "numbers, and the characters -_.=/"
+        )
+        return render_template("register.html", error=error, token=token)
+
+    if password != confirm_password:
+        error = "Passwords do not match."
+        return render_template("register.html", error=error, token=token)
+
+    if not is_strong_password(password):
+        error = (
+            "Password must be at least 8 characters long, include a number, "
+            "and contain at least one special character."
+        )
+        return render_template("register.html", error=error, token=token)
+
+    # Create the Matrix user
+    try:
+        if not current_app.config.get("TESTING", False):
+            # Get command template from config
+            register_cmd_template = current_app.config.get(
+                "register_cmd",
+                (
+                    "register_new_matrix_user --no-admin -c /etc/synapse/homeserver.yaml "
+                    "-u {username} -p {password} http://127.0.0.1:8008"
+                ),
             )
 
-        if not validate_username(username):
-            error = (
-                "Invalid username. Usernames can only contain lowercase letters, "
-                "numbers, and the characters -_.=/"
-            )
-            return render_template(
-                "register.html", error=error, success=success_message, token=token
+            # Format command with proper escaping
+            register_cmd = register_cmd_template.format(
+                username=shlex.quote(username), password=shlex.quote(password)
             )
 
-        if password != confirm_password:
-            error = "Passwords do not match."
-            return render_template(
-                "register.html", error=error, success=success_message, token=token
+            # Execute command securely
+            cmd_parts = shlex.split(register_cmd)
+            subprocess.run(
+                cmd_parts,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        else:
+            # Log instead of executing in test mode
+            current_app.logger.info(
+                f"Test mode: Would have created Matrix user: {username}"
             )
 
-        # Check if the password is strong
-        if not is_strong_password(password):
-            error = (
-                "Password must be at least 8 characters long, include a number, "
-                "and contain at least one special character."
-            )
-            return render_template(
-                "register.html", error=error, success=success_message, token=token
-            )
+        # Mark token as used and redirect to success page
+        mark_token_used(token, username=username)
+        success_token = generate_success_token(username)
+        return redirect(
+            url_for("success.show_success", username=username, token=success_token)
+        )
 
-        try:
-            # Only create the user if we're not in test mode
-            if not current_app.config.get("TESTING", False):
-                # Create the user account
-                subprocess.run(
-                    [
-                        "register_new_matrix_user",
-                        "--no-admin",
-                        "-c",
-                        "/etc/synapse/homeserver.yaml",
-                        "-u",
-                        username,
-                        "-p",
-                        password,
-                        "http://127.0.0.1:8008",
-                    ],
-                    check=True,
-                )
-            else:
-                # In test mode, just log the action
-                current_app.logger.info(
-                    f"Test mode: Would have created Matrix user: {username}"
-                )
+    except subprocess.CalledProcessError as e:
+        # Log error details
+        current_app.logger.error(f"Registration command failed: {e}")
+        if hasattr(e, "stdout"):
+            current_app.logger.error(f"Command stdout: {e.stdout}")
+        if hasattr(e, "stderr"):
+            current_app.logger.error(f"Command stderr: {e.stderr}")
 
-            # Mark token as used in the database
-            mark_token_used(token, username=username)
-
-            # Generate success token and redirect
-            success_token = generate_success_token(username)
-            return redirect(
-                url_for("success.show_success", username=username, token=success_token)
-            )
-
-        except subprocess.CalledProcessError:
-            error = (
-                f"Failed to register: The user {username} already exists "
-                f"or there is another error."
-            )
-
-    return render_template(
-        "register.html", error=error, success=success_message, token=token
-    )
+        # User-friendly error message
+        error = (
+            f"Failed to register: The user {username} may already exist or there "
+            "was a server error."
+        )
+        return render_template("register.html", error=error, token=token)
